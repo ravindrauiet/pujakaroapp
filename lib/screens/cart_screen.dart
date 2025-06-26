@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/cart_service.dart';
-import '../models/cart_item.dart';
 import '../widgets/app_scaffold.dart';
+import '../models/cart_item.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -191,7 +191,7 @@ class CartScreen extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.remove_circle_outline),
                       onPressed: item.quantity > 1
-                          ? () => cartService.decrementQuantity(item.id)
+                          ? () => cartService.updateQuantity(item.id, item.quantity - 1)
                           : null,
                     ),
                     Text(
@@ -203,7 +203,7 @@ class CartScreen extends StatelessWidget {
                     ),
                     IconButton(
                       icon: const Icon(Icons.add_circle_outline),
-                      onPressed: () => cartService.incrementQuantity(item.id),
+                      onPressed: () => cartService.updateQuantity(item.id, item.quantity + 1),
                     ),
                   ],
                 ),

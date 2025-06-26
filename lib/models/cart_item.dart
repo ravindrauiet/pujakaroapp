@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class CartItem {
   final String id;
   final String name;
@@ -34,6 +36,28 @@ class CartItem {
       image: map['image'],
       type: map['type'],
       quantity: map['quantity'] ?? 1,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory CartItem.fromJson(String source) => CartItem.fromMap(json.decode(source));
+
+  CartItem copyWith({
+    String? id,
+    String? name,
+    double? price,
+    String? image,
+    String? type,
+    int? quantity,
+  }) {
+    return CartItem(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      image: image ?? this.image,
+      type: type ?? this.type,
+      quantity: quantity ?? this.quantity,
     );
   }
 

@@ -63,7 +63,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       
       if (data != null) {
         setState(() {
-          _item = data;
+          _item = data!;
           _isLoading = false;
         });
       } else {
