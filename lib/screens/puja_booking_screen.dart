@@ -384,8 +384,8 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
         onTap: () {
           Navigator.pushNamed(
             context, 
-            '/product-detail',
-            arguments: {'id': puja['id'], 'type': 'puja'},
+            '/puja-detail',
+            arguments: {'id': puja['id']},
           );
         },
         child: Column(
@@ -488,8 +488,8 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
                       onPressed: () {
                         Navigator.pushNamed(
                           context, 
-                          '/product-detail',
-                          arguments: {'id': puja['id'], 'type': 'puja'},
+                          '/puja-detail',
+                          arguments: {'id': puja['id']},
                         );
                       },
                       style: ElevatedButton.styleFrom(

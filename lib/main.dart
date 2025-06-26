@@ -5,6 +5,7 @@ import 'screens/home_screen.dart';
 import 'screens/shop_screen.dart';
 import 'screens/puja_booking_screen.dart';
 import 'screens/product_detail_screen.dart';
+import 'screens/puja_detail_screen.dart';
 import 'screens/cart_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/auth/login_screen.dart';
@@ -17,20 +18,37 @@ import 'screens/contact_screen.dart';
 import 'services/cart_service.dart';
 import 'services/data_service.dart';
 import 'services/auth_service.dart';
+import 'config/firebase_config.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  bool firebaseInitialized = false;
+  
+  try {
+    await FirebaseConfig.initializeFirebase();
+    firebaseInitialized = true;
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Error initializing Firebase: $e');
+    print('App will run with mock data');
+  }
+  
+  runApp(MyApp(firebaseInitialized: firebaseInitialized));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool firebaseInitialized;
+  
+  const MyApp({super.key, this.firebaseInitialized = false});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CartService()),
-        ChangeNotifierProvider(create: (_) => DataService()),
+        ChangeNotifierProvider(create: (_) => DataService(useFirebase: firebaseInitialized)),
         ChangeNotifierProvider(create: (_) => AuthService()),
       ],
       child: MaterialApp(
@@ -62,6 +80,7 @@ class MyApp extends StatelessWidget {
           '/shop': (context) => const ShopScreen(),
           '/puja-booking': (context) => const PujaBookingScreen(),
           '/product-detail': (context) => const ProductDetailScreen(),
+          '/puja-detail': (context) => const PujaDetailScreen(),
           '/cart': (context) => const CartScreen(),
           '/profile': (context) => const ProfileScreen(),
           '/login': (context) => const LoginScreen(),

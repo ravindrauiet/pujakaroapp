@@ -35,10 +35,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   
-  # Firebase - temporarily disabled for web
-  # firebase_core: ^2.13.1
-  # firebase_auth: ^4.6.2
-  # cloud_firestore: ^4.8.0
+  # Firebase dependencies
+  firebase_core: ^2.13.1
+  cloud_firestore: ^4.8.0
   
   # State Management
   provider: ^6.0.5

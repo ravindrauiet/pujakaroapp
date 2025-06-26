@@ -1,8 +1,13 @@
 import 'package:flutter/foundation.dart';
+import '../utils/firestore_utils.dart';
 
 class DataService with ChangeNotifier {
-  // Mock data for pujas
-  final List<Map<String, dynamic>> _pujas = [
+  final bool useFirebase;
+
+  DataService({this.useFirebase = true});
+
+  // Mock data for pujas (fallback if Firestore fails)
+  final List<Map<String, dynamic>> _fallbackPujas = [
     {
       'id': 'puja1',
       'name': 'Satyanarayan Puja',
@@ -27,8 +32,8 @@ class DataService with ChangeNotifier {
     },
   ];
 
-  // Mock data for products
-  final List<Map<String, dynamic>> _products = [
+  // Mock data for products (fallback if Firestore fails)
+  final List<Map<String, dynamic>> _fallbackProducts = [
     {
       'id': 'prod1',
       'name': 'Brass Diya Set',
@@ -53,8 +58,8 @@ class DataService with ChangeNotifier {
     },
   ];
 
-  // Mock data for pandits
-  final List<Map<String, dynamic>> _pandits = [
+  // Mock data for pandits (fallback if Firestore fails)
+  final List<Map<String, dynamic>> _fallbackPandits = [
     {
       'id': 'pandit1',
       'name': 'Acharya Sharma',
@@ -117,44 +122,139 @@ class DataService with ChangeNotifier {
 
   // Get all pujas
   Future<List<Map<String, dynamic>>> getAllPujas() async {
-    await Future.delayed(const Duration(milliseconds: 300)); // Simulate network delay
-    return _pujas;
+    if (!useFirebase) {
+      await Future.delayed(const Duration(milliseconds: 300)); // Simulate network delay
+      return _fallbackPujas;
+    }
+    
+    try {
+      // Try to get data from Firestore
+      final pujas = await FirestoreUtils.getAllPujas();
+      
+      if (pujas.isNotEmpty) {
+        debugPrint('Successfully fetched ${pujas.length} pujas from Firestore');
+        return pujas;
+      } else {
+        debugPrint('No pujas found in Firestore, using fallback data');
+        return _fallbackPujas;
+      }
+    } catch (e) {
+      debugPrint('Error fetching pujas from Firestore: $e');
+      debugPrint('Using fallback puja data');
+      return _fallbackPujas;
+    }
   }
 
   // Get puja by ID
   Future<Map<String, dynamic>?> getPujaById(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _pujas.firstWhere((puja) => puja['id'] == id, orElse: () => {});
+    if (!useFirebase) {
+      await Future.delayed(const Duration(milliseconds: 300));
+      return _fallbackPujas.firstWhere((puja) => puja['id'] == id, orElse: () => {});
+    }
+    
+    try {
+      // Try to get data from Firestore
+      final puja = await FirestoreUtils.getPujaById(id);
+      
+      if (puja != null) {
+        debugPrint('Successfully fetched puja with ID $id from Firestore');
+        return puja;
+      } else {
+        debugPrint('No puja with ID $id found in Firestore, checking fallback data');
+        return _fallbackPujas.firstWhere((puja) => puja['id'] == id, orElse: () => {});
+      }
+    } catch (e) {
+      debugPrint('Error fetching puja with ID $id from Firestore: $e');
+      debugPrint('Checking fallback puja data');
+      return _fallbackPujas.firstWhere((puja) => puja['id'] == id, orElse: () => {});
+    }
   }
 
   // Get all products
   Future<List<Map<String, dynamic>>> getAllProducts() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _products;
+    if (!useFirebase) {
+      await Future.delayed(const Duration(milliseconds: 300));
+      return _fallbackProducts;
+    }
+    
+    try {
+      // Try to get data from Firestore
+      final products = await FirestoreUtils.getAllProducts();
+      
+      if (products.isNotEmpty) {
+        debugPrint('Successfully fetched ${products.length} products from Firestore');
+        return products;
+      } else {
+        debugPrint('No products found in Firestore, using fallback data');
+        return _fallbackProducts;
+      }
+    } catch (e) {
+      debugPrint('Error fetching products from Firestore: $e');
+      debugPrint('Using fallback product data');
+      return _fallbackProducts;
+    }
   }
 
   // Get product by ID
   Future<Map<String, dynamic>?> getProductById(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _products.firstWhere((product) => product['id'] == id, orElse: () => {});
+    if (!useFirebase) {
+      await Future.delayed(const Duration(milliseconds: 300));
+      return _fallbackProducts.firstWhere((product) => product['id'] == id, orElse: () => {});
+    }
+    
+    try {
+      // Try to get data from Firestore
+      final product = await FirestoreUtils.getProductById(id);
+      
+      if (product != null) {
+        debugPrint('Successfully fetched product with ID $id from Firestore');
+        return product;
+      } else {
+        debugPrint('No product with ID $id found in Firestore, checking fallback data');
+        return _fallbackProducts.firstWhere((product) => product['id'] == id, orElse: () => {});
+      }
+    } catch (e) {
+      debugPrint('Error fetching product with ID $id from Firestore: $e');
+      debugPrint('Checking fallback product data');
+      return _fallbackProducts.firstWhere((product) => product['id'] == id, orElse: () => {});
+    }
   }
 
   // Get all pandits
   Future<List<Map<String, dynamic>>> getAllPandits() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _pandits;
+    if (!useFirebase) {
+      await Future.delayed(const Duration(milliseconds: 300));
+      return _fallbackPandits;
+    }
+    
+    try {
+      // Try to get data from Firestore
+      final pandits = await FirestoreUtils.getAllPandits();
+      
+      if (pandits.isNotEmpty) {
+        debugPrint('Successfully fetched ${pandits.length} pandits from Firestore');
+        return pandits;
+      } else {
+        debugPrint('No pandits found in Firestore, using fallback data');
+        return _fallbackPandits;
+      }
+    } catch (e) {
+      debugPrint('Error fetching pandits from Firestore: $e');
+      debugPrint('Using fallback pandit data');
+      return _fallbackPandits;
+    }
   }
 
   // Get featured pujas
   Future<List<Map<String, dynamic>>> getFeaturedPujas() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _pujas.where((puja) => puja['featured'] == true).toList();
+    final pujas = await getAllPujas();
+    return pujas.where((puja) => puja['featured'] == true).toList();
   }
 
   // Get featured products
   Future<List<Map<String, dynamic>>> getFeaturedProducts() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _products.where((product) => product['featured'] == true).toList();
+    final products = await getAllProducts();
+    return products.where((product) => product['featured'] == true).toList();
   }
 
   // Get testimonials
