@@ -5,13 +5,13 @@ class ShopScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mock product data
+    // Mock product data with actual image paths
     final products = [
       {
         'id': '1',
         'name': 'Brass Diya',
         'price': '₹499',
-        'image': 'assets/images/placeholder.jpg',
+        'image': 'assets/images/prashad.svg', // Using an available image
         'rating': 4.8,
         'category': 'Puja Items',
       },
@@ -19,7 +19,7 @@ class ShopScreen extends StatelessWidget {
         'id': '2',
         'name': 'Sandalwood Incense Sticks',
         'price': '₹199',
-        'image': 'assets/images/placeholder.jpg',
+        'image': 'assets/images/pujaThali.jpg',
         'rating': 4.5,
         'category': 'Incense',
       },
@@ -27,7 +27,7 @@ class ShopScreen extends StatelessWidget {
         'id': '3',
         'name': 'Silver Puja Thali',
         'price': '₹1,299',
-        'image': 'assets/images/placeholder.jpg',
+        'image': 'assets/images/shivji.jpg',
         'rating': 4.9,
         'category': 'Puja Items',
       },
@@ -35,7 +35,7 @@ class ShopScreen extends StatelessWidget {
         'id': '4',
         'name': 'Rudraksha Mala',
         'price': '₹899',
-        'image': 'assets/images/placeholder.jpg',
+        'image': 'assets/images/flower.svg', // Using an available image
         'rating': 4.7,
         'category': 'Spiritual Jewelry',
       },
@@ -43,7 +43,7 @@ class ShopScreen extends StatelessWidget {
         'id': '5',
         'name': 'Ganga Jal',
         'price': '₹99',
-        'image': 'assets/images/placeholder.jpg',
+        'image': 'assets/images/satyanarayan.jpg',
         'rating': 4.6,
         'category': 'Sacred Items',
       },
@@ -51,7 +51,7 @@ class ShopScreen extends StatelessWidget {
         'id': '6',
         'name': 'Copper Kalash',
         'price': '₹799',
-        'image': 'assets/images/placeholder.jpg',
+        'image': 'assets/images/ganeshaa.jpg',
         'rating': 4.8,
         'category': 'Puja Items',
       },
@@ -151,13 +151,15 @@ class ShopScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.7,
+                childAspectRatio: 0.75, // Adjusted for more height
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
               ),
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final product = products[index];
+                final imagePath = product['image'] as String;
+                final isSvg = imagePath.endsWith('.svg');
                 
                 return GestureDetector(
                   onTap: () {
@@ -185,17 +187,38 @@ class ShopScreen extends StatelessWidget {
                         // Product image
                         ClipRRect(
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                          child: Container(
+                          child: SizedBox(
                             height: 120,
                             width: double.infinity,
-                            color: Colors.grey.shade200,
-                            child: Center(
-                              child: Icon(
-                                Icons.image,
-                                color: Colors.grey.shade400,
-                                size: 40,
-                              ),
-                            ),
+                            child: isSvg
+                                ? ColorFiltered(
+                                    colorFilter: const ColorFilter.mode(
+                                      Color(0xFFFB9548),
+                                      BlendMode.srcIn,
+                                    ),
+                                    child: Container(
+                                      color: const Color(0xFFFEEEDC),
+                                      child: const Icon(
+                                        Icons.spa,
+                                        color: Color(0xFF8B0000),
+                                        size: 50,
+                                      ),
+                                    ),
+                                  )
+                                : Image.asset(
+                                    imagePath,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Colors.grey.shade200,
+                                        child: const Icon(
+                                          Icons.image_not_supported,
+                                          color: Colors.grey,
+                                          size: 40,
+                                        ),
+                                      );
+                                    },
+                                  ),
                           ),
                         ),
                         
@@ -204,6 +227,7 @@ class ShopScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min, // Prevent overflow
                             children: [
                               Text(
                                 product['category'] as String,
@@ -211,6 +235,8 @@ class ShopScreen extends StatelessWidget {
                                   fontSize: 12,
                                   color: Colors.grey.shade600,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -220,18 +246,18 @@ class ShopScreen extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF5F4B32),
                                 ),
-                                maxLines: 2,
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               Row(
                                 children: [
                                   const Icon(
                                     Icons.star,
                                     color: Color(0xFFFFB347),
-                                    size: 16,
+                                    size: 14,
                                   ),
-                                  const SizedBox(width: 4),
+                                  const SizedBox(width: 2),
                                   Text(
                                     '${product['rating']}',
                                     style: const TextStyle(
@@ -241,7 +267,7 @@ class ShopScreen extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -254,8 +280,8 @@ class ShopScreen extends StatelessWidget {
                                     ),
                                   ),
                                   Container(
-                                    width: 32,
-                                    height: 32,
+                                    width: 28,
+                                    height: 28,
                                     decoration: const BoxDecoration(
                                       color: Color(0xFFFB9548),
                                       shape: BoxShape.circle,
@@ -263,7 +289,7 @@ class ShopScreen extends StatelessWidget {
                                     child: const Icon(
                                       Icons.add,
                                       color: Colors.white,
-                                      size: 18,
+                                      size: 16,
                                     ),
                                   ),
                                 ],

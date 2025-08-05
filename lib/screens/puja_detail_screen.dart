@@ -40,7 +40,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
     
     final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     if (args.containsKey('id')) {
-      final id = args['id'] as String;
+      final id = args['id'].toString();
       _fetchPujaDetails(id);
       _fetchAvailablePandits();
     }
@@ -80,7 +80,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
       setState(() {
         _availablePandits = pandits;
         if (pandits.isNotEmpty) {
-          _selectedPanditId = pandits[0]['id'] as String;
+          _selectedPanditId = pandits[0]['id'].toString();
         }
       });
     } catch (e) {
@@ -102,10 +102,10 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
     };
     
     final item = CartItem(
-      id: _puja['id'],
-      name: _puja['name'] ?? 'Unknown',
+      id: _puja['id'].toString(),
+      name: _puja['name']?.toString() ?? 'Unknown',
       price: double.tryParse(_puja['price']?.toString() ?? '0') ?? 0,
-      image: _puja['image'] ?? 'placeholder.jpg',
+      image: _puja['image']?.toString() ?? 'placeholder.jpg',
       type: 'puja',
       quantity: 1,
     );
@@ -132,7 +132,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
       // Redirect to login if not authenticated
       Navigator.pushNamed(context, '/login', arguments: {
         'redirectTo': '/puja-detail',
-        'pujaId': _puja['id'],
+        'pujaId': _puja['id']?.toString() ?? '',
       });
       return;
     }
@@ -195,7 +195,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
       width: double.infinity,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/${_puja['image'] ?? 'placeholder.jpg'}'),
+          image: AssetImage('assets/images/${_puja['image']?.toString() ?? 'placeholder.jpg'}'),
           fit: BoxFit.cover,
         ),
       ),
@@ -217,7 +217,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _puja['name'] ?? '',
+                _puja['name']?.toString() ?? '',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 28,
@@ -241,7 +241,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '₹${_puja['price'] ?? '0'}',
+                '₹${_puja['price']?.toString() ?? '0'}',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -257,7 +257,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${_puja['rating'] ?? '4.5'} (${_puja['reviews'] ?? '0'})',
+                    '${_puja['rating']?.toString() ?? '4.5'} (${_puja['reviews']?.toString() ?? '0'})',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -273,7 +273,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
               const Icon(Icons.access_time, size: 16, color: Colors.grey),
               const SizedBox(width: 4),
               Text(
-                'Duration: ${_puja['duration'] ?? '1 hour'}',
+                'Duration: ${_puja['duration']?.toString() ?? '1 hour'}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,
@@ -396,11 +396,11 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
               ? const Center(child: CircularProgressIndicator())
               : Column(
                   children: _availablePandits.map((pandit) {
-                    final isSelected = _selectedPanditId == pandit['id'];
+                    final isSelected = _selectedPanditId == pandit['id'].toString();
                     return InkWell(
                       onTap: () {
                         setState(() {
-                          _selectedPanditId = pandit['id'] as String;
+                          _selectedPanditId = pandit['id'].toString();
                         });
                       },
                       child: Container(
@@ -416,7 +416,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                         child: Row(
                           children: [
                             CircleAvatar(
-                              backgroundImage: AssetImage('assets/images/${pandit['image'] ?? 'placeholder.jpg'}'),
+                              backgroundImage: AssetImage('assets/images/${pandit['image']?.toString() ?? 'placeholder.jpg'}'),
                               radius: 24,
                             ),
                             const SizedBox(width: 16),
@@ -425,14 +425,14 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    pandit['name'] as String,
+                                    pandit['name']?.toString() ?? '',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
-                                    pandit['specialization'] as String,
+                                    pandit['specialization']?.toString() ?? '',
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey[600],
@@ -443,7 +443,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                                       const Icon(Icons.star, color: Colors.amber, size: 16),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${pandit['rating']} (${pandit['reviews']} reviews)',
+                                        '${pandit['rating']?.toString() ?? '4.5'} (${pandit['reviews']?.toString() ?? '0'} reviews)',
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey[600],
@@ -455,7 +455,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                               ),
                             ),
                             Radio<String>(
-                              value: pandit['id'] as String,
+                              value: pandit['id'].toString(),
                               groupValue: _selectedPanditId,
                               onChanged: (value) {
                                 if (value != null) {
@@ -495,7 +495,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            _puja['description'] ?? '',
+            _puja['description']?.toString() ?? '',
             style: const TextStyle(
               fontSize: 16,
               color: Colors.black87,
@@ -600,14 +600,14 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      review['name'] as String,
+                      review['name']?.toString() ?? '',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      review['date'] as String,
+                      review['date']?.toString() ?? '',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
@@ -618,8 +618,11 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                 const SizedBox(height: 4),
                 Row(
                   children: List.generate(5, (index) {
+                    final rating = review['rating'] is int 
+                        ? review['rating'] as int 
+                        : int.tryParse(review['rating']?.toString() ?? '0') ?? 0;
                     return Icon(
-                      index < (review['rating'] as int) ? Icons.star : Icons.star_border,
+                      index < rating ? Icons.star : Icons.star_border,
                       color: Colors.amber,
                       size: 18,
                     );
@@ -627,7 +630,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  review['comment'] as String,
+                  review['comment']?.toString() ?? '',
                   style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 8),
