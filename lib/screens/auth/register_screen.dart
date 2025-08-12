@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import 'package:provider/provider.dart';
+import '../../services/auth_service.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -17,7 +19,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -29,33 +30,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _register() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      // Simulate API call
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() {
-          _isLoading = false;
-        });
-        
-        // Show success message and navigate to login
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration successful! Please login.')),
+    final authService = Provider.of<AuthService>(context, listen: false);
+    
+    try {
+      final user = await authService.signUp(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        name: _nameController.text.trim(),
+        phone: _phoneController.text.trim(),
+      );
+      
+      if (user != null && mounted) {
+        Fluttertoast.showToast(
+          msg: "Registration successful!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
         );
-        
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-      });
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Registration failed: ${authService.errorMessage}",
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    
     return Scaffold(
       backgroundColor: const Color(0xFFFCF7F1),
       body: SafeArea(
@@ -292,7 +300,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : _register,
+                          onPressed: authService.isLoading ? null : _register,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFB9548),
                             foregroundColor: Colors.white,
@@ -301,7 +309,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             disabledBackgroundColor: const Color(0xFFFB9548).withOpacity(0.5),
                           ),
-                          child: _isLoading
+                          child: authService.isLoading
                               ? const SizedBox(
                                   width: 24,
                                   height: 24,
@@ -331,12 +339,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             style: TextStyle(color: Color(0xFF5F4B32)),
                           ),
                           TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                              );
-                            },
+                            onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
                             child: const Text(
                               'Login',
                               style: TextStyle(

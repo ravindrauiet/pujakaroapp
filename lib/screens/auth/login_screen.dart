@@ -36,6 +36,11 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       
       if (user != null && mounted) {
+        Fluttertoast.showToast(
+          msg: "Login successful!",
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } catch (e) {
@@ -197,28 +202,28 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 24),
                       
                       // Login button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: authService.isLoading ? null : _login,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF8B0000),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: authService.isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ),
+                      // SizedBox(
+                      //   width: double.infinity,
+                      //   height: 50,
+                      //   child: ElevatedButton(
+                      //     onPressed: authService.isLoading ? null : _login,
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: const Color(0xFF8B0000),
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(12),
+                      //       ),
+                      //     ),
+                      //     child: authService.isLoading
+                      //         ? const CircularProgressIndicator(color: Colors.white)
+                      //         : const Text(
+                      //             'Login',
+                      //             style: TextStyle(
+                      //               fontSize: 16,
+                      //               fontWeight: FontWeight.bold,
+                      //             ),
+                      //           ),
+                      //   ),
+                      // ),
                       const SizedBox(height: 16),
                       
                       // Google Sign In button

@@ -111,6 +111,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
   
   Widget _buildProfileHeader(AuthService authService) {
+    final user = authService.currentUser;
+    if (user == null) return const SizedBox.shrink();
+    
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -123,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             radius: 40,
             backgroundColor: const Color(0xFFFFF6E5),
             child: Text(
-              _userData['name'].toString().split(' ').map((e) => e[0]).join(''),
+              user.name.split(' ').map((e) => e.isNotEmpty ? e[0] : '').join(''),
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -136,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           
           // User Name
           Text(
-            _userData['name'],
+            user.name,
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -148,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           
           // User Email
           Text(
-            _userData['email'],
+            user.email,
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey.shade600,
@@ -159,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           
           // Member Since
           Text(
-            'Member since ${_userData['memberSince']}',
+            'Member since ${_formatDate(user.createdAt)}',
             style: TextStyle(
               fontSize: 12,
               color: Colors.grey.shade600,
@@ -188,6 +191,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return '${months[date.month - 1]} ${date.year}';
   }
   
   Widget _buildTabNavigation() {
@@ -771,8 +782,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: settingsItems.length,
+      itemCount: settingsItems.length + 1, // +1 for logout section
       itemBuilder: (context, index) {
+        if (index == settingsItems.length) {
+          // Logout section
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Logout Header
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.logout,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(width: 16),
+                      const Text(
+                        'Account',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF8B0000),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Divider
+                const Divider(height: 1),
+                
+                // Logout Button
+                ListTile(
+                  title: const Text(
+                    'Logout',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: Colors.red,
+                  ),
+                  onTap: () => _showLogoutDialog(context),
+                ),
+              ],
+            ),
+          );
+        }
+        
         final settingGroup = settingsItems[index];
         
         return Container(
@@ -924,6 +999,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                final authService = Provider.of<AuthService>(context, listen: false);
+                await authService.signOut();
+                if (mounted) {
+                  Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

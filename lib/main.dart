@@ -20,7 +20,6 @@ import 'services/cart_service.dart';
 import 'services/data_service.dart';
 import 'services/auth_service.dart';
 import 'config/firebase_config.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
