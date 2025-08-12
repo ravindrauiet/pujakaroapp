@@ -5,6 +5,7 @@ import '../services/data_service.dart';
 import '../services/cart_service.dart';
 import '../widgets/app_scaffold.dart';
 import '../models/cart_item.dart';
+import '../utils/image_utils.dart';
 
 class PujaDetailScreen extends StatefulWidget {
   const PujaDetailScreen({super.key});
@@ -195,7 +196,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
       width: double.infinity,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/${_puja['image']?.toString() ?? 'placeholder.jpg'}'),
+          image: AssetImage(ImageUtils.normalizeImagePath(_puja['image'])),
           fit: BoxFit.cover,
         ),
       ),
@@ -416,7 +417,7 @@ class _PujaDetailScreenState extends State<PujaDetailScreen> {
                         child: Row(
                           children: [
                             CircleAvatar(
-                              backgroundImage: AssetImage('assets/images/${pandit['image']?.toString() ?? 'placeholder.jpg'}'),
+                              backgroundImage: AssetImage(ImageUtils.normalizeImagePath(pandit['image'])),
                               radius: 24,
                             ),
                             const SizedBox(width: 16),

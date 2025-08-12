@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/data_service.dart';
 import '../widgets/app_scaffold.dart';
+import '../utils/image_utils.dart';
 
 class PujaBookingScreen extends StatefulWidget {
   const PujaBookingScreen({super.key});
@@ -400,7 +401,7 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
                 ),
                 image: DecorationImage(
                   image: AssetImage(
-                    'assets/images/${puja['image'] ?? 'satyanarayan.jpg'}',
+                    ImageUtils.normalizeImagePath(puja['image']),
                   ),
                   fit: BoxFit.cover,
                   onError: (_, __) {},
@@ -488,8 +489,12 @@ class _PujaBookingScreenState extends State<PujaBookingScreen> {
                       onPressed: () {
                         Navigator.pushNamed(
                           context, 
-                          '/puja-detail',
-                          arguments: {'id': puja['id']},
+                          '/booking-form',
+                          arguments: {
+                            'puja': puja,
+                            'selectedDate': null,
+                            'selectedTime': null,
+                          },
                         );
                       },
                       style: ElevatedButton.styleFrom(

@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/data_service.dart';
+import '../services/auth_service.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/hero_section.dart';
+import '../utils/image_utils.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -1574,28 +1580,31 @@ class HomeScreen extends StatelessWidget {
   Widget _buildPanditSection(BuildContext context) {
     final pandits = [
       {
-        'name': 'Pandit Ramesh Sharma',
-        'image': 'assets/images/rameshJi.jpg',
-        'expertise': 'Vedic Rituals',
+        'id': 'pandit1',
+        'name': 'Acharya Sharma',
         'experience': '15+ years',
-        'language': 'Hindi, English',
+        'specialization': 'Vedic rituals',
+        'image': 'assets/images/hanumanji.jpg',  // Using existing image
         'rating': 4.9,
+        'reviews': 210,
       },
       {
-        'name': 'Pandit Suresh Joshi',
-        'image': 'assets/images/ganesh.jpg',  // Replace with actual pandit image
-        'expertise': 'Ganesh Puja',
-        'experience': '12+ years',
-        'language': 'Hindi, Marathi',
-        'rating': 4.8,
-      },
-      {
-        'name': 'Acharya Mukesh Tiwari',
-        'image': 'assets/images/shivji.jpg',  // Replace with actual pandit image
-        'expertise': 'Vastu & Jyotish',
+        'id': 'pandit2',
+        'name': 'Pandit Mishra',
         'experience': '20+ years',
-        'language': 'Hindi, English, Sanskrit',
-        'rating': 5.0,
+        'specialization': 'Vastu and Astrology',
+        'image': 'assets/images/ganesh.jpg',  // Using existing image
+        'rating': 4.8,
+        'reviews': 185,
+      },
+      {
+        'id': 'pandit3',
+        'name': 'Pandit Joshi',
+        'experience': '18+ years',
+        'specialization': 'Tantra and Mantra',
+        'image': 'assets/images/durga-ma.jpg',  // Using existing image
+        'rating': 4.7,
+        'reviews': 165,
       },
     ];
     
@@ -1682,7 +1691,7 @@ class HomeScreen extends StatelessWidget {
                           topRight: Radius.circular(12),
                         ),
                         child: Image.asset(
-                          pandit['image'] as String,
+                          ImageUtils.normalizeImagePath(pandit['image']?.toString()),
                           height: 150,
                           width: double.infinity,
                           fit: BoxFit.cover,
@@ -1742,7 +1751,7 @@ class HomeScreen extends StatelessWidget {
                               const SizedBox(height: 8),
                               _buildPanditInfoRow(
                                 Icons.badge,
-                                'Expertise: ${pandit['expertise']}',
+                                'Expertise: ${pandit['specialization']}',
                               ),
                               _buildPanditInfoRow(
                                 Icons.work,

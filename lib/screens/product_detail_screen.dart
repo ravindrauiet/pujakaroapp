@@ -4,6 +4,7 @@ import '../services/data_service.dart';
 import '../services/cart_service.dart';
 import '../widgets/app_scaffold.dart';
 import '../models/cart_item.dart';
+import '../utils/image_utils.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key});
@@ -163,9 +164,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       height: 250,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(
-            'assets/images/${_item['image'] ?? 'placeholder.jpg'}',
-          ),
+          image: AssetImage(ImageUtils.normalizeImagePath(_item['image'])),
           fit: BoxFit.cover,
           onError: (_, __) {},
         ),

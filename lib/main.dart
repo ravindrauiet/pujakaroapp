@@ -4,6 +4,7 @@ import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/shop_screen.dart';
 import 'screens/puja_booking_screen.dart';
+import 'screens/booking_form_screen.dart';
 import 'screens/product_detail_screen.dart';
 import 'screens/puja_detail_screen.dart';
 import 'screens/cart_screen.dart';
@@ -79,6 +80,14 @@ class MyApp extends StatelessWidget {
           '/home': (context) => const HomeScreen(),
           '/shop': (context) => const ShopScreen(),
           '/puja-booking': (context) => const PujaBookingScreen(),
+          '/booking-form': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+            return BookingFormScreen(
+              puja: args?['puja'] ?? {},
+              selectedDate: args?['selectedDate'],
+              selectedTime: args?['selectedTime'],
+            );
+          },
           '/product-detail': (context) => const ProductDetailScreen(),
           '/puja-detail': (context) => const PujaDetailScreen(),
           '/cart': (context) => const CartScreen(),

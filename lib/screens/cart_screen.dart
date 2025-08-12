@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/cart_service.dart';
 import '../widgets/app_scaffold.dart';
 import '../models/cart_item.dart';
+import '../utils/image_utils.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -119,7 +120,7 @@ class CartScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 child: FadeInImage(
                   placeholder: const AssetImage('assets/images/placeholder.jpg'),
-                  image: AssetImage('assets/images/${item.image}'),
+                  image: AssetImage(ImageUtils.normalizeImagePath(item.image)),
                   imageErrorBuilder: (context, error, stackTrace) => Container(
                     color: Colors.grey[200],
                     child: const Icon(

@@ -27,7 +27,7 @@ class ShopScreen extends StatelessWidget {
         'id': '3',
         'name': 'Silver Puja Thali',
         'price': '₹1,299',
-        'image': 'assets/images/shivji.jpg',
+        'image': 'assets/images/durga-ma.jpg',  // Using existing image
         'rating': 4.9,
         'category': 'Puja Items',
       },

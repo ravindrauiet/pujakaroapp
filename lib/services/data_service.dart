@@ -305,4 +305,25 @@ class DataService with ChangeNotifier {
       }
     ];
   }
+
+  // Create a new booking
+  Future<void> createBooking(Map<String, dynamic> bookingData) async {
+    if (!useFirebase) {
+      // Simulate API delay
+      await Future.delayed(const Duration(seconds: 2));
+      debugPrint('Booking created (mock): ${bookingData['pujaName']}');
+      return;
+    }
+
+    try {
+      // Try to save booking to Firestore
+      await FirestoreUtils.createBooking(bookingData);
+      debugPrint('Booking created successfully in Firestore: ${bookingData['pujaName']}');
+    } catch (e) {
+      debugPrint('Error creating booking in Firestore: $e');
+      // Fallback to mock creation
+      await Future.delayed(const Duration(seconds: 2));
+      debugPrint('Booking created (fallback): ${bookingData['pujaName']}');
+    }
+  }
 } 

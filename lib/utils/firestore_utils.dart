@@ -110,4 +110,19 @@ class FirestoreUtils {
       return false;
     }
   }
+
+  /// Create a new booking with complete booking data
+  static Future<void> createBooking(Map<String, dynamic> bookingData) async {
+    try {
+      await _firestore.collection('bookings').add({
+        ...bookingData,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      debugPrint('FirestoreUtils: Booking created successfully');
+    } catch (e) {
+      debugPrint('FirestoreUtils: Error creating booking - $e');
+      rethrow;
+    }
+  }
 } 
