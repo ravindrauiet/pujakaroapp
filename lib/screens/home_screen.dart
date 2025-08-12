@@ -11,38 +11,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'PujaKaro',
-          style: TextStyle(
-            color: Color(0xFF8B0000),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: Color(0xFF5F4B32)),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications coming soon')),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.shopping_cart, color: Color(0xFF5F4B32)),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cart coming soon')),
-              );
-            },
-          ),
-        ],
-        elevation: 2,
-      ),
-      drawer: _buildDrawer(context),
+    return AppScaffold(
+      title: 'PujaKaro',
+      currentIndex: 0,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -74,34 +45,6 @@ class HomeScreen extends StatelessWidget {
             _buildPanditSection(context),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: const Color(0xFF8B0000),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: 'Shop',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        onTap: (index) {
-          if (index == 0) {
-            // Already on home
-          } else if (index == 1) {
-            Navigator.pushNamed(context, '/shop');
-          } else if (index == 2) {
-            Navigator.pushNamed(context, '/profile');
-          }
-        },
       ),
     );
   }

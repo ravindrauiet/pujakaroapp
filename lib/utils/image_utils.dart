@@ -12,12 +12,27 @@ class ImageUtils {
       cleanPath = cleanPath.substring(1);
     }
     
+    // Handle double paths like "assets/assets/images//images/featuredPuja.jpg"
+    if (cleanPath.contains('assets/assets/images//images/')) {
+      cleanPath = cleanPath.replaceAll('assets/assets/images//images/', 'assets/images/');
+    }
+    
+    // Handle double paths like "assets/images//images/featuredPuja.jpg"
+    if (cleanPath.contains('assets/images//images/')) {
+      cleanPath = cleanPath.replaceAll('assets/images//images/', 'assets/images/');
+    }
+    
+    // Handle paths that start with just 'images/' (missing 'assets/')
+    if (cleanPath.startsWith('images/')) {
+      cleanPath = 'assets/$cleanPath';
+    }
+    
     // If the path already starts with 'assets/images/', return as is
-    if (cleanPath.startsWith('')) {
+    if (cleanPath.startsWith('assets/images/')) {
       return cleanPath;
     }
     
     // If it's just a filename, prepend the assets path
-    return '$imagePath';
+    return 'assets/images/$cleanPath';
   }
 } 

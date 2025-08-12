@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_scaffold.dart';
 
 class ShopScreen extends StatelessWidget {
   const ShopScreen({super.key});
@@ -67,26 +68,9 @@ class ShopScreen extends StatelessWidget {
       'Books',
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Shop',
-          style: TextStyle(
-            color: Color(0xFF8B0000),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart, color: Color(0xFF5F4B32)),
-            onPressed: () {
-              Navigator.pushNamed(context, '/cart');
-            },
-          ),
-        ],
-      ),
+    return AppScaffold(
+      title: 'Shop',
+      currentIndex: 1,
       body: Column(
         children: [
           // Search bar
@@ -98,11 +82,7 @@ class ShopScreen extends StatelessWidget {
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
                 ),
-                filled: true,
-                fillColor: Colors.grey.shade200,
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
             ),
           ),
@@ -305,34 +285,6 @@ class ShopScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1, // Shop is selected
-        selectedItemColor: const Color(0xFF8B0000),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: 'Shop',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/home');
-          } else if (index == 1) {
-            // Already on shop
-          } else if (index == 2) {
-            Navigator.pushReplacementNamed(context, '/profile');
-          }
-        },
       ),
     );
   }

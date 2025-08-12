@@ -102,9 +102,7 @@ class AppScaffold extends StatelessWidget {
             ],
           ),
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Search coming soon')),
-            );
+            _showSearchDialog(context);
           },
         ),
         IconButton(
@@ -139,9 +137,7 @@ class AppScaffold extends StatelessWidget {
             ],
           ),
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Cart coming soon')),
-            );
+            Navigator.pushNamed(context, '/cart');
           },
         ),
       ],
@@ -184,9 +180,54 @@ class AppScaffold extends StatelessWidget {
   void _onNavTap(int index, BuildContext context) {
     if (currentIndex == index) return;
     
-    final pages = ['Home', 'Shop', 'Puja', 'Blog', 'Profile/Login'];
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${pages[index]} page coming soon')),
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/shop');
+        break;
+      case 2:
+        Navigator.pushReplacementNamed(context, '/puja-booking');
+        break;
+      case 3:
+        Navigator.pushReplacementNamed(context, '/blog');
+        break;
+      case 4:
+        Navigator.pushReplacementNamed(context, '/profile');
+        break;
+    }
+  }
+
+  void _showSearchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Search'),
+          content: TextField(
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: 'Search...',
+              prefixIcon: Icon(Icons.search),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Search'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 } 

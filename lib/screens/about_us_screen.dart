@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_scaffold.dart';
 
 class AboutUsScreen extends StatelessWidget {
   const AboutUsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'About Us',
-          style: TextStyle(
-            color: Color(0xFF8B0000),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-      ),
+    return AppScaffold(
+      title: 'About Us',
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/auth_service.dart';
+import '../widgets/app_scaffold.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -77,93 +80,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'My Profile',
-          style: TextStyle(
-            color: Color(0xFF8B0000),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Color(0xFF5F4B32)),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Settings coming soon')),
-              );
-            },
-          ),
-        ],
-      ),
+    final authService = Provider.of<AuthService>(context);
+    
+    if (!authService.isAuthenticated) {
+      return AppScaffold(
+        title: 'Profile',
+        currentIndex: 4,
+        body: _buildLoginPrompt(context),
+      );
+    }
+
+    return AppScaffold(
+      title: 'Profile',
+      currentIndex: 4,
       body: Column(
         children: [
-          // Profile Header
-          _buildProfileHeader(),
+          // Profile header
+          _buildProfileHeader(authService),
           
-          // Tabs
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 5,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                _buildTabItem(0, 'Orders'),
-                _buildTabItem(1, 'Addresses'),
-                _buildTabItem(2, 'Payments'),
-                _buildTabItem(3, 'Settings'),
-              ],
-            ),
-          ),
+          // Tab navigation
+          _buildTabNavigation(),
           
-          // Tab Content
+          // Tab content
           Expanded(
             child: _buildTabContent(),
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2, // Profile tab is selected
-        selectedItemColor: const Color(0xFF8B0000),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: 'Shop',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/home');
-          } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/shop');
-          } else if (index == 2) {
-            // Already on profile
-          }
-        },
-      ),
     );
   }
   
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(AuthService authService) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -238,6 +185,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildTabNavigation() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          _buildTabItem(0, 'Orders'),
+          _buildTabItem(1, 'Addresses'),
+          _buildTabItem(2, 'Payments'),
+          _buildTabItem(3, 'Settings'),
         ],
       ),
     );
@@ -914,6 +884,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontSize: 16,
                 color: Colors.grey.shade600,
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginPrompt(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Please log in to access your profile.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF5F4B32),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF8B0000),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Login'),
             ),
           ],
         ),
