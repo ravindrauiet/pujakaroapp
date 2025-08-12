@@ -114,15 +114,90 @@ class FirestoreUtils {
   /// Create a new booking with complete booking data
   static Future<void> createBooking(Map<String, dynamic> bookingData) async {
     try {
-      await _firestore.collection('bookings').add({
+      // Convert string timestamps to Firestore timestamps
+      final Map<String, dynamic> firestoreData = {
         ...bookingData,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
-      });
+      };
+      
+      // Handle paymentReceivedAt - only set if not null
+      if (bookingData['paymentReceivedAt'] != null) {
+        firestoreData['paymentReceivedAt'] = FieldValue.serverTimestamp();
+      }
+      
+      await _firestore.collection('bookings').add(firestoreData);
       debugPrint('FirestoreUtils: Booking created successfully');
     } catch (e) {
       debugPrint('FirestoreUtils: Error creating booking - $e');
       rethrow;
+    }
+  }
+
+  /// Update booking status
+  static Future<void> updateBookingStatus(String bookingId, String status) async {
+    try {
+      await _firestore.collection('bookings').doc(bookingId).update({
+        'status': status,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      debugPrint('FirestoreUtils: Booking status updated to $status');
+    } catch (e) {
+      debugPrint('FirestoreUtils: Error updating booking status - $e');
+      rethrow;
+    }
+  }
+
+  /// Update payment status and timestamp
+  static Future<void> updatePaymentStatus(String bookingId, String paymentStatus) async {
+    try {
+      final Map<String, dynamic> updateData = {
+        'paymentStatus': paymentStatus,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+      
+      if (paymentStatus == 'received') {
+        updateData['paymentReceivedAt'] = FieldValue.serverTimestamp();
+      }
+      
+      await _firestore.collection('bookings').doc(bookingId).update(updateData);
+      debugPrint('FirestoreUtils: Payment status updated to $paymentStatus');
+    } catch (e) {
+      debugPrint('FirestoreUtils: Error updating payment status - $e');
+      rethrow;
+    }
+  }
+
+  /// Get all bookings for admin dashboard
+  static Future<List<Map<String, dynamic>>> getAllBookings() async {
+    try {
+      final QuerySnapshot snapshot = await _firestore.collection('bookings')
+          .orderBy('createdAt', descending: true)
+          .get();
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return {'id': doc.id, ...data};
+      }).toList();
+    } catch (e) {
+      debugPrint('FirestoreUtils: Error getting all bookings - $e');
+      return [];
+    }
+  }
+
+  /// Get bookings by user ID
+  static Future<List<Map<String, dynamic>>> getBookingsByUserId(String userId) async {
+    try {
+      final QuerySnapshot snapshot = await _firestore.collection('bookings')
+          .where('userId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return {'id': doc.id, ...data};
+      }).toList();
+    } catch (e) {
+      debugPrint('FirestoreUtils: Error getting user bookings - $e');
+      return [];
     }
   }
 } 

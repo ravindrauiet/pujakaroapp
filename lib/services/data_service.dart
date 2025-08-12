@@ -326,4 +326,93 @@ class DataService with ChangeNotifier {
       debugPrint('Booking created (fallback): ${bookingData['pujaName']}');
     }
   }
+
+  // Update booking status
+  Future<void> updateBookingStatus(String bookingId, String status) async {
+    if (!useFirebase) {
+      await Future.delayed(const Duration(seconds: 1));
+      debugPrint('Booking status updated (mock): $status');
+      return;
+    }
+
+    try {
+      await FirestoreUtils.updateBookingStatus(bookingId, status);
+      debugPrint('Booking status updated successfully in Firestore: $status');
+    } catch (e) {
+      debugPrint('Error updating booking status in Firestore: $e');
+      rethrow;
+    }
+  }
+
+  // Update payment status
+  Future<void> updatePaymentStatus(String bookingId, String paymentStatus) async {
+    if (!useFirebase) {
+      await Future.delayed(const Duration(seconds: 1));
+      debugPrint('Payment status updated (mock): $paymentStatus');
+      return;
+    }
+
+    try {
+      await FirestoreUtils.updatePaymentStatus(bookingId, paymentStatus);
+      debugPrint('Payment status updated successfully in Firestore: $paymentStatus');
+    } catch (e) {
+      debugPrint('Error updating payment status in Firestore: $e');
+      rethrow;
+    }
+  }
+
+  // Get all bookings for admin dashboard
+  Future<List<Map<String, dynamic>>> getAllBookings() async {
+    if (!useFirebase) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      return [
+        {
+          'id': 'admin_booking1',
+          'pujaName': 'Satyanarayan Puja',
+          'userName': 'John Doe',
+          'userEmail': 'john@example.com',
+          'phone': '+91 98765 43210',
+          'date': '2024-01-15',
+          'time': '14:30',
+          'status': 'pending',
+          'paymentStatus': 'pending',
+          'price': 1999.0,
+          'finalPrice': 1999.0,
+        }
+      ];
+    }
+
+    try {
+      return await FirestoreUtils.getAllBookings();
+    } catch (e) {
+      debugPrint('Error getting all bookings from Firestore: $e');
+      return [];
+    }
+  }
+
+  // Get bookings by user ID
+  Future<List<Map<String, dynamic>>> getBookingsByUserId(String userId) async {
+    if (!useFirebase) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      return [
+        {
+          'id': 'user_booking1',
+          'pujaName': 'Satyanarayan Puja',
+          'date': '2024-01-15',
+          'time': '14:30',
+          'status': 'confirmed',
+          'paymentStatus': 'received',
+          'price': 1999.0,
+          'finalPrice': 1999.0,
+        }
+      ];
+    }
+
+    try {
+      return await FirestoreUtils.getBookingsByUserId(userId);
+    } catch (e) {
+      debugPrint('Error getting user bookings from Firestore: $e');
+      return [];
+    }
+  }
 } 

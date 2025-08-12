@@ -142,25 +142,38 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
     });
 
     try {
+      // Get current user data
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final currentUser = authService.currentUser;
+      
       final bookingData = {
-        'pujaId': widget.puja['id'],
+        'pujaId': int.tryParse(widget.puja['id'].toString()) ?? 0,
         'pujaName': widget.puja['name'],
-        'pujaPrice': widget.puja['price'],
-        'customerName': _nameController.text,
-        'customerEmail': _emailController.text,
-        'customerPhone': _phoneController.text,
+        'price': widget.puja['price'] ?? 0.0,
+        'userName': _nameController.text,
+        'userEmail': _emailController.text,
+        'phone': _phoneController.text,
         'address': _addressController.text,
         'city': _cityController.text,
         'state': _stateController.text,
         'pincode': _pincodeController.text,
-        'bookingDate': DateFormat('yyyy-MM-dd').format(_selectedDate!),
-        'bookingTime': _selectedTime,
-        'additionalInfo': _additionalInfoController.text,
+        'date': DateFormat('yyyy-MM-dd').format(_selectedDate!),
+        'time': _selectedTime,
+        'specialInstructions': _additionalInfoController.text,
         'referralCode': _referralCodeController.text,
-        'discountAmount': _discountAmount,
-        'totalAmount': widget.puja['price'] - _discountAmount,
+        'discountApplied': _discountAmount,
+        'discountType': _discountAmount > 0 ? 'referral' : '',
+        'finalPrice': widget.puja['price'] - _discountAmount,
+        'location': {
+          'latitude': 28.627584, // Default coordinates - you can make this dynamic
+          'longitude': 77.3822763,
+        },
         'status': 'pending',
+        'paymentStatus': 'pending',
+        'userId': currentUser?.uid ?? '',
         'createdAt': DateTime.now().toIso8601String(),
+        'updatedAt': DateTime.now().toIso8601String(),
+        'paymentReceivedAt': null, // Will be updated when payment is received
       };
 
       await Provider.of<DataService>(context, listen: false).createBooking(bookingData);
