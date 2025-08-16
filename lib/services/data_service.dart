@@ -392,7 +392,10 @@ class DataService with ChangeNotifier {
 
   // Get bookings by user ID
   Future<List<Map<String, dynamic>>> getBookingsByUserId(String userId) async {
+    debugPrint('DataService: getBookingsByUserId called with userId: $userId');
+    
     if (!useFirebase) {
+      debugPrint('DataService: Firebase not enabled, returning mock data');
       await Future.delayed(const Duration(milliseconds: 500));
       return [
         {
@@ -409,9 +412,46 @@ class DataService with ChangeNotifier {
     }
 
     try {
-      return await FirestoreUtils.getBookingsByUserId(userId);
+      debugPrint('DataService: Calling FirestoreUtils.getBookingsByUserId');
+      final bookings = await FirestoreUtils.getBookingsByUserId(userId);
+      debugPrint('DataService: Firestore returned ${bookings.length} bookings');
+      debugPrint('DataService: Bookings data: $bookings');
+      return bookings;
     } catch (e) {
-      debugPrint('Error getting user bookings from Firestore: $e');
+      debugPrint('DataService: Error getting user bookings from Firestore: $e');
+      return [];
+    }
+  }
+
+  // Get bookings by user email
+  Future<List<Map<String, dynamic>>> getBookingsByUserEmail(String userEmail) async {
+    debugPrint('DataService: getBookingsByUserEmail called with userEmail: $userEmail');
+    
+    if (!useFirebase) {
+      debugPrint('DataService: Firebase not enabled, returning mock data');
+      await Future.delayed(const Duration(milliseconds: 500));
+      return [
+        {
+          'id': 'user_booking1',
+          'pujaName': 'Satyanarayan Puja',
+          'date': '2024-01-15',
+          'time': '14:30',
+          'status': 'confirmed',
+          'paymentStatus': 'received',
+          'price': 1999.0,
+          'finalPrice': 1999.0,
+        }
+      ];
+    }
+
+    try {
+      debugPrint('DataService: Calling FirestoreUtils.getBookingsByUserEmail');
+      final bookings = await FirestoreUtils.getBookingsByUserEmail(userEmail);
+      debugPrint('DataService: Firestore returned ${bookings.length} bookings');
+      debugPrint('DataService: Bookings data: $bookings');
+      return bookings;
+    } catch (e) {
+      debugPrint('DataService: Error getting user bookings by email from Firestore: $e');
       return [];
     }
   }

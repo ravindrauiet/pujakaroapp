@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Added for FirebaseAuth.instance.currentUser
 
 /// Utility class for Firestore operations
 class FirestoreUtils {
@@ -187,16 +188,72 @@ class FirestoreUtils {
   /// Get bookings by user ID
   static Future<List<Map<String, dynamic>>> getBookingsByUserId(String userId) async {
     try {
-      final QuerySnapshot snapshot = await _firestore.collection('bookings')
+      debugPrint('FirestoreUtils: getBookingsByUserId called with userId: $userId');
+      
+      // First try to get bookings by userId
+      QuerySnapshot snapshot = await _firestore.collection('bookings')
           .where('userId', isEqualTo: userId)
           .orderBy('createdAt', descending: true)
           .get();
-      return snapshot.docs.map((doc) {
+      
+      debugPrint('FirestoreUtils: Query by userId returned ${snapshot.docs.length} documents');
+      
+      // If no bookings found by userId, try to get the user's email and search by that
+      if (snapshot.docs.isEmpty) {
+        debugPrint('FirestoreUtils: No bookings found by userId, trying to find user email');
+        
+        // Get the current user's email from Firebase Auth
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser?.email != null) {
+          debugPrint('FirestoreUtils: Searching by userEmail: ${currentUser!.email}');
+          
+          snapshot = await _firestore.collection('bookings')
+              .where('userEmail', isEqualTo: currentUser.email)
+              .orderBy('createdAt', descending: true)
+              .get();
+          
+          debugPrint('FirestoreUtils: Query by userEmail returned ${snapshot.docs.length} documents');
+        }
+      }
+      
+      final bookings = snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        return {'id': doc.id, ...data};
+        final booking = {'id': doc.id, ...data};
+        debugPrint('FirestoreUtils: Document ${doc.id} data: $booking');
+        return booking;
       }).toList();
+      
+      debugPrint('FirestoreUtils: Returning ${bookings.length} bookings');
+      return bookings;
     } catch (e) {
       debugPrint('FirestoreUtils: Error getting user bookings - $e');
+      return [];
+    }
+  }
+
+  /// Get bookings by user email
+  static Future<List<Map<String, dynamic>>> getBookingsByUserEmail(String userEmail) async {
+    try {
+      debugPrint('FirestoreUtils: getBookingsByUserEmail called with userEmail: $userEmail');
+      
+      final QuerySnapshot snapshot = await _firestore.collection('bookings')
+          .where('userEmail', isEqualTo: userEmail)
+          .orderBy('createdAt', descending: true)
+          .get();
+      
+      debugPrint('FirestoreUtils: Query by userEmail returned ${snapshot.docs.length} documents');
+      
+      final bookings = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final booking = {'id': doc.id, ...data};
+        debugPrint('FirestoreUtils: Document ${doc.id} data: $booking');
+        return booking;
+      }).toList();
+      
+      debugPrint('FirestoreUtils: Returning ${bookings.length} bookings');
+      return bookings;
+    } catch (e) {
+      debugPrint('FirestoreUtils: Error getting user bookings by email - $e');
       return [];
     }
   }

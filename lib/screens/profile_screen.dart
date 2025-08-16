@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../widgets/app_scaffold.dart';
+import '../services/data_service.dart'; // Added missing import
+import 'order_details_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -20,6 +22,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     'memberSince': 'January 2023',
     'profileImage': null, // No image, will use initials
   };
+
+  // Real booking data will be loaded here
+  List<Map<String, dynamic>> _userBookings = [];
+  bool _isLoadingBookings = false;
 
   // Mock order history
   final List<Map<String, dynamic>> _orderHistory = [
@@ -79,6 +85,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
   int _selectedTabIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _loadUserBookings();
+  }
+
+  Future<void> _loadUserBookings() async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    debugPrint('ProfileScreen: _loadUserBookings called');
+    debugPrint('ProfileScreen: isAuthenticated: ${authService.isAuthenticated}');
+    debugPrint('ProfileScreen: currentUser: ${authService.currentUser}');
+    debugPrint('ProfileScreen: firebaseUser: ${authService.firebaseUser}');
+    
+    if (authService.isAuthenticated) {
+      // Use currentUser.uid if available, otherwise fall back to Firebase Auth user ID
+      final userId = authService.currentUser?.uid ?? authService.firebaseUser?.uid;
+      final userEmail = authService.currentUser?.email ?? authService.firebaseUser?.email;
+      
+      if (userId != null || userEmail != null) {
+        debugPrint('ProfileScreen: User ID: $userId, User Email: $userEmail');
+        
+        setState(() {
+          _isLoadingBookings = true;
+        });
+
+        try {
+          final dataService = Provider.of<DataService>(context, listen: false);
+          List<Map<String, dynamic>> bookings = [];
+          
+          // First try to get bookings by userId
+          if (userId != null) {
+            debugPrint('ProfileScreen: Trying to get bookings by userId: $userId');
+            bookings = await dataService.getBookingsByUserId(userId);
+            debugPrint('ProfileScreen: Found ${bookings.length} bookings by userId');
+          }
+          
+          // If no bookings found by userId, try by email
+          if (bookings.isEmpty && userEmail != null) {
+            debugPrint('ProfileScreen: No bookings found by userId, trying by email: $userEmail');
+            bookings = await dataService.getBookingsByUserEmail(userEmail);
+            debugPrint('ProfileScreen: Found ${bookings.length} bookings by email');
+          }
+          
+          debugPrint('ProfileScreen: Total bookings found: ${bookings.length}');
+          debugPrint('ProfileScreen: Bookings data: $bookings');
+          
+          setState(() {
+            _userBookings = bookings;
+            _isLoadingBookings = false;
+          });
+        } catch (e) {
+          debugPrint('ProfileScreen: Error loading user bookings: $e');
+          setState(() {
+            _isLoadingBookings = false;
+          });
+        }
+      } else {
+        debugPrint('ProfileScreen: Both currentUser.uid and firebaseUser.uid are null');
+        setState(() {
+          _isLoadingBookings = false;
+        });
+      }
+    } else {
+      debugPrint('ProfileScreen: User not authenticated');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     
@@ -93,19 +166,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return AppScaffold(
       title: 'Profile',
       currentIndex: 4,
-      body: Column(
-        children: [
-          // Profile header
-          _buildProfileHeader(authService),
-          
-          // Tab navigation
-          _buildTabNavigation(),
-          
-          // Tab content
-          Expanded(
-            child: _buildTabContent(),
-          ),
-        ],
+      body: RefreshIndicator(
+        onRefresh: _loadUserBookings,
+        child: Column(
+          children: [
+            // Profile header
+            _buildProfileHeader(authService),
+            
+            // Tab navigation
+            _buildTabNavigation(),
+            
+            // Tab content
+            Expanded(
+              child: _buildTabContent(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -273,17 +349,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
   
   Widget _buildOrdersTab() {
-    return _orderHistory.isEmpty
+    if (_isLoadingBookings) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    return _userBookings.isEmpty
         ? _buildEmptyState(
             icon: Icons.shopping_bag,
-            title: 'No Orders Yet',
-            description: 'Your order history will appear here once you make a purchase.',
+            title: 'No Bookings Yet',
+            description: 'Your puja bookings will appear here once you make a booking.',
           )
         : ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: _orderHistory.length,
+            itemCount: _userBookings.length,
             itemBuilder: (context, index) {
-              final order = _orderHistory[index];
+              final booking = _userBookings[index];
               
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -320,14 +402,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Order #${order['id']}',
+                            'Booking #${booking['id']}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF5F4B32),
                             ),
                           ),
                           Text(
-                            order['date'],
+                            booking['date'] ?? 'Date not set',
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 12,
@@ -343,29 +425,74 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Items
-                          ...List.generate(
-                            (order['items'] as List).length,
-                            (i) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle_outline,
-                                    size: 16,
-                                    color: Color(0xFFFB9548),
+                          // Puja Name
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.celebration,
+                                size: 16,
+                                color: Color(0xFFFB9548),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  booking['pujaName'] ?? 'Puja Name Not Available',
+                                  style: const TextStyle(
+                                    color: Color(0xFF5F4B32),
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    order['items'][i],
-                                    style: const TextStyle(
-                                      color: Color(0xFF5F4B32),
+                                ),
+                              ),
+                            ],
+                          ),
+                          
+                          const SizedBox(height: 8),
+                          
+                          // Time
+                          if (booking['time'] != null) ...[
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.access_time,
+                                  size: 16,
+                                  color: Color(0xFFFB9548),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Time: ${booking['time']}',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                          
+                          // Location
+                          if (booking['address'] != null) ...[
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.location_on,
+                                  size: 16,
+                                  color: Color(0xFFFB9548),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    '${booking['address']}, ${booking['city'] ?? ''}, ${booking['state'] ?? ''}',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 14,
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                          ],
                           
                           const SizedBox(height: 16),
                           
@@ -380,26 +507,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: order['status'] == 'Completed'
-                                      ? const Color(0xFFE8F5E9)
-                                      : const Color(0xFFFFF8E1),
+                                  color: _getStatusColor(booking['status'] ?? 'pending').withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  order['status'],
+                                  _getStatusDisplayName(booking['status'] ?? 'pending'),
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: order['status'] == 'Completed'
-                                        ? Colors.green.shade700
-                                        : Colors.orange.shade800,
+                                    color: _getStatusColor(booking['status'] ?? 'pending'),
                                   ),
                                 ),
                               ),
                               
                               // Amount
                               Text(
-                                order['amount'],
+                                '₹${(booking['finalPrice'] ?? booking['price'] ?? 0).toStringAsFixed(0)}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -416,8 +539,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             width: double.infinity,
                             child: OutlinedButton(
                               onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Order details coming soon')),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => OrderDetailsScreen(order: booking),
+                                  ),
                                 );
                               },
                               style: OutlinedButton.styleFrom(
@@ -1033,5 +1159,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       },
     );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return Colors.green.shade700;
+      case 'confirmed':
+        return Colors.blue.shade700;
+      case 'pending':
+        return Colors.orange.shade800;
+      case 'cancelled':
+        return Colors.red.shade700;
+      default:
+        return Colors.grey.shade600;
+    }
+  }
+
+  String _getStatusDisplayName(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'Completed';
+      case 'confirmed':
+        return 'Confirmed';
+      case 'pending':
+        return 'Pending';
+      case 'cancelled':
+        return 'Cancelled';
+      default:
+        return status;
+    }
   }
 }
